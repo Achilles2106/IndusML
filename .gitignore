@@ -1,0 +1,21 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# Node / dashboard
+dashboard/node_modules/
+
+# OS/editor junk
+.DS_Store
+.vscode/
+*.log
+
+# Raw dataset - large, not needed at runtime
+data/
+
+artifacts/anomaly_stats/tile.pkl
+
+test/
+test.pyartifacts/anomaly_stats/

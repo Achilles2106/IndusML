@@ -1,0 +1,72 @@
+{
+  "half1_anomaly_detection": {
+    "description": "Unsupervised anomaly detection (ResNet-18 backbone, Mahalanobis distance over layer2+layer3 features). Trained on train/good only, no labeled masks used.",
+    "threshold": 15.181941032409668,
+    "classification_metrics": {
+      "precision": 0.717948717948718,
+      "recall": 1.0,
+      "f1": 0.835820895522388,
+      "auroc": 0.9361471861471862
+    },
+    "segmentation_metrics_per_defect_type": {
+      "crack": {
+        "iou": 0.04645946179282164,
+        "dice": 0.08845883704835629
+      },
+      "glue_strip": {
+        "iou": 0.31130109730008104,
+        "dice": 0.4656840031215503
+      },
+      "gray_stroke": {
+        "iou": 0.2828686207839903,
+        "dice": 0.4366978083746501
+      },
+      "oil": {
+        "iou": 0.5520058119457492,
+        "dice": 0.7089773279429012
+      },
+      "rough": {
+        "iou": 0.46529074446688423,
+        "dice": 0.6235699699148337
+      }
+    }
+  },
+  "half2_unet_segmentation": {
+    "description": "Supervised segmentation (U-Net). Trained on labeled image/mask pairs, evaluated on held-out test split.",
+    "segmentation_metrics_per_defect_type": {
+      "crack": {
+        "iou": 0.7588162777589134,
+        "dice": 0.8616914660714008,
+        "n": 4
+      },
+      "glue_strip": {
+        "iou": 0.8871869580142308,
+        "dice": 0.9393996352997788,
+        "n": 4
+      },
+      "gray_stroke": {
+        "iou": 0.8527494436585346,
+        "dice": 0.9203326390276413,
+        "n": 3
+      },
+      "oil": {
+        "iou": 0.9089378923719164,
+        "dice": 0.951725838543361,
+        "n": 4
+      },
+      "rough": {
+        "iou": 0.825632003142854,
+        "dice": 0.9042668196762439,
+        "n": 3
+      }
+    },
+    "overall": {
+      "iou": 0.8474949362769114,
+      "dice": 0.9158370075427675,
+      "n": 18
+    }
+  },
+  "comparison_summary": {
+    "note": "Half 1 achieves strong image-level classification (high AUROC, perfect recall) but weak pixel-level localization on thin defects (notably 'crack'), due to the coarse spatial resolution of statistical feature-grid anomaly maps. Half 2 (U-Net) substantially outperforms Half 1 on localization across every defect type, most dramatically on 'crack', because direct pixel-level supervision is not limited by this resolution bottleneck. This motivates using Half 2 as the primary localization/severity source, with Half 1 retained as a complementary detector for novel or uncharacterized defect types it was never trained on."
+  }
+}

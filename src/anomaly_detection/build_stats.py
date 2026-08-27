@@ -44,6 +44,14 @@ def main():
     # Reshape to [N, C, H*W] for per-location processing
     all_features = all_features.reshape(N, C, H * W)
 
+    NUM_SELECTED_CHANNELS = 100
+    rng = np.random.default_rng(seed=42)
+    selected_channels = rng.choice(C, size=NUM_SELECTED_CHANNELS, replace=False)
+    selected_channels = np.sort(selected_channels)
+
+    all_features = all_features[:, selected_channels, :]  # [N, 100, H*W]
+    C = NUM_SELECTED_CHANNELS
+
     means = np.zeros((H * W, C), dtype=np.float32)
     inv_covariances = np.zeros((H * W, C, C), dtype=np.float32)
 
@@ -74,6 +82,7 @@ def main():
         "grid_w": W,
         "num_channels": C,
         "num_training_images": N,
+        "selected_channels": selected_channels,
     }
 
     with open(STATS_OUTPUT_PATH, "wb") as f:

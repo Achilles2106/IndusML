@@ -15,7 +15,5 @@ dashboard/node_modules/
 # Raw dataset - large, not needed at runtime
 data/
 
-artifacts/anomaly_stats/tile.pkl
-
 test/
 test.pyartifacts/anomaly_stats/

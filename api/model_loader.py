@@ -10,7 +10,7 @@ from src.segmentation.unet import UNet
 UNET_CHECKPOINT_PATH = "artifacts/checkpoints/unet_tile.pt"
 ANOMALY_STATS_PATH = "artifacts/anomaly_stats/tile.pkl"
 ANOMALY_STATS_URL = "https://github.com/Achilles2106/IndusML/releases/download/v1.0-artifacts/tile.pkl"
-HALF1_THRESHOLD = 15.1819   # from your Half 1 baseline eval report
+HALF1_THRESHOLD = 7.5317   # from your Half 1 baseline eval report
 UNET_THRESHOLD = 0.5
 # --------------------------------------
 

@@ -18,6 +18,7 @@ class AnomalyScorer:
         self.grid_h = self.stats["grid_h"]
         self.grid_w = self.stats["grid_w"]
         self.num_channels = self.stats["num_channels"]
+        self.selected_channels = self.stats["selected_channels"]
 
         self.extractor = extractor if extractor is not None else FeatureExtractor()
 
@@ -26,15 +27,18 @@ class AnomalyScorer:
         Returns a 2D numpy array of shape [grid_h, grid_w] containing
         the Mahalanobis distance (anomaly score) at each spatial location.
         """
-        combined = self.extractor.get_combined_features(image_path)  # [C, H, W]
+        combined = self.extractor.get_combined_features(image_path)  # [C_full, H, W]
         combined = combined.cpu().numpy()
 
-        C, H, W = combined.shape
+        C_full, H, W = combined.shape
         assert H == self.grid_h and W == self.grid_w, \
             f"Feature grid size mismatch: got {H}x{W}, expected {self.grid_h}x{self.grid_w}"
 
-        # Reshape to [H*W, C]
-        vectors = combined.reshape(C, H * W).transpose(1, 0)  # [H*W, C]
+        # Reshape to [H*W, C_full]
+        vectors = combined.reshape(C_full, H * W).transpose(1, 0)  # [H*W, C_full]
+
+        # Select only the channels used when building stats (must match build_stats.py)
+        vectors = vectors[:, self.selected_channels]  # [H*W, num_channels]
 
         anomaly_map = np.zeros(H * W, dtype=np.float32)
 

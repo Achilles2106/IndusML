@@ -40,21 +40,20 @@ class AnomalyScorer:
         # Select only the channels used when building stats (must match build_stats.py)
         vectors = vectors[:, self.selected_channels]  # [H*W, num_channels]
 
-        anomaly_map = np.zeros(H * W, dtype=np.float32)
+                # vectors: [H*W, C], self.means: [H*W, C], self.inv_covariances: [H*W, C, C]
+        diff = vectors - self.means  # [H*W, C], broadcasts correctly since shapes match
 
-        for loc in range(H * W):
-            x = vectors[loc]                  # [C]
-            mean = self.means[loc]            # [C]
-            inv_cov = self.inv_covariances[loc]  # [C, C]
+        # Batched quadratic form: for each location, compute diff @ inv_cov @ diff
+        # einsum indices: n = location, i/j = channel dims
+        mahalanobis_sq = np.einsum('ni,nij,nj->n', diff, self.inv_covariances, diff)
 
-            diff = x - mean
-            # Mahalanobis distance: sqrt(diff^T * inv_cov * diff)
-            mahalanobis_dist = np.sqrt(diff @ inv_cov @ diff.T)
-            anomaly_map[loc] = mahalanobis_dist
+        # Guard against tiny negative values from floating point error before sqrt
+        mahalanobis_sq = np.clip(mahalanobis_sq, a_min=0, a_max=None)
+        anomaly_map = np.sqrt(mahalanobis_sq).astype(np.float32)
 
         anomaly_map = anomaly_map.reshape(H, W)
         return anomaly_map
-
+    
     def score_and_upsample(self, image_path, output_size=(256, 256)):
         """
         Returns the anomaly map upsampled to output_size (default 256x256,
